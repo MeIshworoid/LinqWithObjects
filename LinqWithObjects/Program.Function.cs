@@ -4,6 +4,8 @@ partial class Program
 {
     private static void DeferredExecution(string[] names)
     {
+        //Deferred execution means that the query is not executed until we enumerate over the results.
+        //This allows us to change the data source before we execute the query and see the changes reflected in the results.
         SectionTitle("Deferred execution");
         // Question: Which names end with an M?
         // (using a LINQ extension method)
@@ -13,9 +15,9 @@ partial class Program
         var query2 = from name in names where name.EndsWith("m") select name; //query syntax
 
         // Answer returned as an array of strings containing Pam and Jim.
-        string[] result1 = query1.ToArray();
+        string[] result1 = query1.ToArray(); // ToArray() which forces the query to execute and return the results as an array of strings. (Materilize the query)
         // Answer returned as a list of strings containing Pam and Jim.
-        List<string> result2 = query2.ToList();
+        List<string> result2 = query2.ToList(); // ToList() which forces the query to execute and return the results as a list of strings.((Materilize the query)
         // Answer returned as we enumerate over the results.
         foreach (string name in query1)
         {
