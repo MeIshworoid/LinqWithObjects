@@ -41,25 +41,38 @@ partial class Program
         // Using a lambda expression instead of a named method.
         // lambda expresion is an anonymous/nameless function.
         // - It uses => (lamda expression) symbol read as "goes to" or "maps to".
-        var query = names.Where(name => name.Length > 4);
+        //var query = names.Where(name => name.Length > 4);
+
+        //orderby,orderbydescending,thenby, thenbydescending are explicit sorting extension methods
+        var query1 = names
+            .Where(name => name.Length > 4)
+            .OrderBy(name => name.Length);
+
+        var query2 = names
+            .Where(name => name.Length > 4)
+            .OrderByDescending(name => name.Length);
+
+        var query3 = names
+            .Where(name => name.Length > 4)
+            .OrderBy(name => name.Length)
+            .ThenBy(name => name);
+
+        IOrderedEnumerable<string> query5 = names
+          .Where(name => name.Length > 4)
+          .OrderBy(name => name.Length)
+          .ThenBy(name => name);
+
+        //order,orderdescending, here names is array of string type so it implicitly implements the Icomparable interface
+        // -if the type is complex i.e Person or Customer the we need to implement the Icomparable interface to use order or orderdescending extension method.
+        var query6 = names
+            .Order();
 
 
-        foreach (string item in query)
+
+        foreach (string item in query5)
         {
             WriteLine(item);
         }
-
-        SectionTitle("Filtering using First");
-        //explicit delegate creation of func<string,bool> which takes a string and returns a bool. if bool is true then result included else excluded.
-        //string test = names.First(new Func<string, bool>(FirstNameStartWithD));
-
-        //implicit delegate creation by compiler i.e support direct method name as parameter. no need to use of new func<string, bool>.
-        //string test = names.First(FirstNameStartWithD);
-
-        //using of lambda expression to reduce the code and increase readability.
-        string test = names.First(name => name.StartsWith("D"));
-
-        WriteLine(test);
     }
 
     static bool NameLongerThanFour(string name)
@@ -70,5 +83,67 @@ partial class Program
     static bool FirstNameStartWithD(string name)
     {
         return name.StartsWith("D");
+    }
+
+
+    static void FilteringByType()
+    {
+
+        //Filtering by where is best for values such as numbers,text etc but if the sequence contains multiple types then 
+        // we can use the OfType<T>() extension method to filter by type.
+
+        List<Exception> exceptions = new List<Exception>
+        {
+            new ArgumentException(),
+            new InvalidOperationException(),
+            new DivideByZeroException(),
+            new ArgumentNullException(),
+            new SystemException(),
+            new IndexOutOfRangeException(),
+            new OverflowException()
+        };
+
+        //filter by type using ofType<T>() extension method
+        IEnumerable<ArithmeticException> arithmeticExceptionQuery = exceptions.OfType<ArithmeticException>();
+
+        foreach (ArithmeticException ex in arithmeticExceptionQuery)
+        {
+            WriteLine(ex);
+        }
+    }
+
+    static void Output(IEnumerable<string> cohort, string description = "")
+    {
+        if (!string.IsNullOrEmpty(description))
+        {
+            WriteLine(description);
+        }
+        Write(" ");
+        WriteLine(string.Join(", ", cohort.ToArray()));
+        WriteLine();
+    }
+
+    static void WorkingWithSets()
+    {
+        string[] cohort1 =
+          { "Rachel", "Gareth", "Jonathan", "George" };
+        string[] cohort2 =
+          { "Jack", "Stephen", "Daniel", "Jack", "Jared" };
+        string[] cohort3 =
+          { "Declan", "Jack", "Jack", "Jasmine", "Conor" };
+        SectionTitle("The cohorts");
+        Output(cohort1, "Cohort 1");
+        Output(cohort2, "Cohort 2");
+        Output(cohort3, "Cohort 3");
+        SectionTitle("Set operations");
+        Output(cohort2.Distinct(), "cohort2.Distinct()");
+        Output(cohort2.DistinctBy(name => name.Substring(0, 2)),
+          "cohort2.DistinctBy(name => name.Substring(0, 2)):");
+        Output(cohort2.Union(cohort3), "cohort2.Union(cohort3)");
+        Output(cohort2.Concat(cohort3), "cohort2.Concat(cohort3)");
+        Output(cohort2.Intersect(cohort3), "cohort2.Intersect(cohort3)");
+        Output(cohort2.Except(cohort3), "cohort2.Except(cohort3)");
+        Output(cohort1.Zip(cohort2, (c1, c2) => $"{c1} matched with {c2}"),
+          "cohort1.Zip(cohort2)");
     }
 }
